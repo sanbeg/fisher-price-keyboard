@@ -1,0 +1,13 @@
+Utilities to play with the Fisher Price Fun2Learn keyboard on linux.
+
+fpkbd-echo: Convert key presses into text, write to stdout; supports all
+	    keys/buttons.
+
+fpkbd-input: Convert key events into linux uinput events. Run 'insmod
+	     uinput' first, then use this (sort of) like a regular keyboard.
+	     Implements the alphanumeric keys.
+
+fpkbd-ev: Filters events, and prints the interesting ones; used for
+	  debugging/.
+
+Note:  All of these must run as root, to access the hidraw and uinput devices. 
