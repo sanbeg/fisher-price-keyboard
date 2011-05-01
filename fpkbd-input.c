@@ -102,14 +102,16 @@ void press_key(int fd, int key, int value)
 {
   if (key>0) 
     {
-      struct input_event event={0};
+      static struct input_event event={0}, syn_event={0};
 
       event.type=EV_KEY;
       event.code=key;
       event.value=value;
+      syn_event.type = EV_SYN;
+
       write(fd, &event, sizeof(event));
+      write(fd, &syn_event, sizeof(event));
     }
-  
 }
 
 int main(int argc, char **argv)
