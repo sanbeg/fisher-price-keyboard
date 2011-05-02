@@ -120,9 +120,25 @@ int main(int argc, char **argv)
   unsigned char buf[32];
   typedef unsigned long long keystate;
   
-  wfd=open_uinput();
+  if (argc > 2) 
+    {
+      fprintf (stderr, "Usage: %s [device]\n", *argv);
+      exit(1);
+    }
+  if (argc == 1) 
+    {
+      if ((wfd = open (argv[1], O_RDONLY)) <= 0) 
+	{
+	  perror (argv[1]);
+	  return 1;
+	}
+    }
+  else 
+    {
+      rfd=open_kb();
+    }
   
-  rfd=open_kb();
+  wfd=open_uinput();
   
   if (rfd <= 0) 
     {
