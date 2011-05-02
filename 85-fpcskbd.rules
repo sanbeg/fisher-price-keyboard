@@ -1,0 +1,1 @@
+SUBSYSTEM=="hidraw", ATTRS{product}=="Computer Cool School", SYMLINK+="fpcskbd", RUN+="/usr/local/bin/fpkbd-input /dev/%k"

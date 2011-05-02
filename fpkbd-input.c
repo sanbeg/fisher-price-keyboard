@@ -125,9 +125,9 @@ int main(int argc, char **argv)
       fprintf (stderr, "Usage: %s [device]\n", *argv);
       exit(1);
     }
-  if (argc == 1) 
+  if (argc == 2) 
     {
-      if ((wfd = open (argv[1], O_RDONLY)) <= 0) 
+      if ((rfd = open (argv[1], O_RDONLY)) <= 0) 
 	{
 	  perror (argv[1]);
 	  return 1;
@@ -144,6 +144,17 @@ int main(int argc, char **argv)
     {
       puts ("failed to find keyboard");
       return 1;
+    }
+  
+  switch(fork())
+    {
+    case -1:
+      perror ("fork");
+      return 1;
+    case 0:
+      break;
+    default:
+      return 0;
     }
   
 
