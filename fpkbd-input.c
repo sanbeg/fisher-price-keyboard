@@ -70,7 +70,7 @@ int open_uinput (void)
 {
   int fd, i;
   struct uinput_user_dev uidev = {
-    .name = "Fisher Price keyboard",
+    .name = "Fisher-Price keyboard",
     .id = {
       .bustype = BUS_USB,
       .vendor  = 0x0813,
@@ -180,8 +180,6 @@ int main(int argc, char **argv)
 	  return 0;
 	}
     }
-  
-
 
   keystate prev=0, cur=0;
   while ((res = read(rfd, buf, 16)) > 0) 
@@ -195,15 +193,14 @@ int main(int argc, char **argv)
 
 	  if (cur_new || cur_old) 
 	    {
-	      int i=0;
-	      keystate b=1;
-	      for (i=0; positions[i]!=0; ++i) 
+	      int i;
+	      keystate b;
+	      for (i=0, b=1; positions[i]!=0; ++i, b<<=1) 
 		{
 		  if (cur_old & b)
 		    press_key(wfd,positions[i], 0);
 		  else if (cur_new & b)
 		    press_key(wfd,positions[i], 1);
-		  b<<=1;
 		}
 	      prev=cur;
 	    }
@@ -215,5 +212,4 @@ int main(int argc, char **argv)
   close(wfd);
 
   return 0;
-
 }
