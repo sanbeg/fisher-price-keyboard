@@ -14,6 +14,7 @@
 
 #include <linux/uinput.h>
 
+// 2-9, 16-23, 30-37, 44-50, ...
 
 int positions[]= 
   {
@@ -102,12 +103,17 @@ void press_key(int fd, int key, int value)
 {
   if (key>0) 
     {
-      static struct input_event event={0}, syn_event={0};
-
-      event.type=EV_KEY;
+      static struct input_event event={
+	.type = EV_KEY
+      };
+      const static struct input_event syn_event={
+	.type = EV_SYN,
+	.code = SYN_REPORT,
+	.value = 0
+      };
+      
       event.code=key;
       event.value=value;
-      syn_event.type = EV_SYN;
 
       write(fd, &event, sizeof(event));
       write(fd, &syn_event, sizeof(event));
@@ -117,19 +123,35 @@ void press_key(int fd, int key, int value)
 int main(int argc, char **argv)
 {
   int rfd=0, wfd=0, res=0;
-  unsigned char buf[32];
+  unsigned char buf[16];
   typedef unsigned long long keystate;
   
-  if (argc > 2) 
+  int opt;
+  unsigned char do_fork=1;
+  
+  while ((opt = getopt(argc, argv, "f")) != -1) 
+    {
+      switch (opt) 
+	{
+	case 'f':
+	  do_fork = 0;
+	  break;
+	default:
+	  fprintf (stderr, "Invalid option: -%c\n", opt);
+	  return 1;
+	}
+    }
+
+  if (argc > optind+1) 
     {
       fprintf (stderr, "Usage: %s [device]\n", *argv);
       exit(1);
     }
-  if (argc == 2) 
+  if (argc == optind+1) 
     {
-      if ((rfd = open (argv[1], O_RDONLY)) <= 0) 
+      if ((rfd = open (argv[optind], O_RDONLY)) <= 0) 
 	{
-	  perror (argv[1]);
+	  perror (argv[optind]);
 	  return 1;
 	}
     }
@@ -146,17 +168,21 @@ int main(int argc, char **argv)
       return 1;
     }
   
-  switch(fork())
+  if (do_fork) 
     {
-    case -1:
-      perror ("fork");
-      return 1;
-    case 0:
-      break;
-    default:
-      return 0;
+      switch(fork())
+	{
+	case -1:
+	  perror ("fork");
+	  return 1;
+	case 0:
+	  break;
+	default:
+	  return 0;
+	}
     }
   
+
 
   keystate prev=0, cur=0;
   while ((res = read(rfd, buf, 16)) > 0) 
