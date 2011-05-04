@@ -69,10 +69,17 @@ void die(const char * msg)
 int open_uinput (void) 
 {
   int fd, i;
-  struct uinput_user_dev uidev;
+  struct uinput_user_dev uidev = {
+    .name = "Fisher Price keyboard",
+    .id = {
+      .bustype = BUS_USB,
+      .vendor  = 0x0813,
+      .product = 0x1007,
+      .version = 1
+    }
+  };
   
-  fd = open("/dev/uinput", O_WRONLY | O_NONBLOCK);
-  if(fd < 0)
+  if ((fd = open("/dev/uinput", O_WRONLY | O_NONBLOCK)) < 0)
     die("/dev/uinput");
   
   if(ioctl(fd, UI_SET_EVBIT, EV_KEY) < 0)
@@ -82,14 +89,6 @@ int open_uinput (void)
     if (positions[i] > 0)
       ioctl(fd, UI_SET_KEYBIT, positions[i]);
 
-  //copy all this from hidraw?
-  memset(&uidev, 0, sizeof(uidev));
-  snprintf(uidev.name, UINPUT_MAX_NAME_SIZE, "fisher price keyboard");
-  uidev.id.bustype = BUS_USB;
-  uidev.id.vendor  = 0x0813;
-  uidev.id.product = 0x1007;
-  uidev.id.version = 1;
-  
   if(write(fd, &uidev, sizeof(uidev)) < 0)
     die("error: write");
   
